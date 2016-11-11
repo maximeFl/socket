@@ -3,6 +3,9 @@
 from fib import fib
 from socket import *
 from threading import Thread
+from concurrent.futures import ProcessPoolExecutor as Pool
+
+pool = Pool(4)
 
 def fib_server(address):
     sock = socket(AF_INET, SOCK_STREAM)
@@ -21,7 +24,8 @@ def fib_handler(client):
         if not req:
             break
         n = int(req)
-        resp = fib(n)
+        future = pool.submit(fib, n)
+        resp = future.result() 
         resp = str(resp).encode('ascii') +b'\n'
         client.send(resp)
     print("Closed")
